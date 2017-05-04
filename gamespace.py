@@ -13,7 +13,7 @@ class GameSpace:
 		self.black = 0, 0, 0
 		self.screen = pygame.display.set_mode(self.size) 
 
-		background = Background(self)
+		self.background = Background(self)
 		#self.score = Score(self)
 		#self.player1 = Player(self)
 		#self.player2 = Player(self)
@@ -31,8 +31,8 @@ class GameSpace:
 					#	pygame.display.update()
 					#else:
 					#	self.player.tick()
-				elif event.type == pygame.MOUSEMOTION:
-					self.player.tick()
+				#elif event.type == pygame.MOUSEMOTION:
+					#self.player.tick()
 			
 			self.screen.blit(self.background.image, self.background.rect)
 			#self.screen.blit(self.score.image, self.score.rect)
