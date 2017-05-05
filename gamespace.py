@@ -5,8 +5,8 @@ import pygame
 from pygame.locals import *
 from random import randint
 
-class GameSpace: 
-	def main(self):
+class GameSpace:
+	def __init__(self):
 		pygame.init()
 		pygame.font.init()
 		pygame.key.set_repeat(1,50)
@@ -16,42 +16,49 @@ class GameSpace:
 		self.screen = pygame.display.set_mode(self.size) 
 
 		self.background = Background(self)
-		self.player1 = Player(self, 25, 240)
-		self.player2 = Player(self, 615, 240)
+		self.player = Player(self)
+		self.opponent = Opponent(self)
 		self.ball = Ball(self)
 		
 		self.ourfont = pygame.font.SysFont('Comic Sans MS', 70)
 
 		self.clock = pygame.time.Clock()
 
+	def main(self):
 		while 1:
 			self.ball.move()
-			self.score1 = self.ourfont.render(str(self.player1.points), False, (255, 255, 255))
-			self.score2 = self.ourfont.render(str(self.player2.points), False, (255, 255, 255))
 			
+			# Print Score
+			self.score1 = self.ourfont.render(str(self.player.points), False, (255, 255, 255))
+			self.score2 = self.ourfont.render(str(self.opponent.points), False, (255, 255, 255))
+			
+			# Handle Moving 
 			for event in pygame.event.get():
 				if event.type == pygame.QUIT:
 					sys.exit()
 				elif event.type == pygame.KEYDOWN:
-					self.player1.tick()
-					self.player2.tick()
+					self.player.tick()
+
+			#self.opponent.rect.centery -= y
 			
+			# Blit to Screen
 			self.screen.blit(self.background.image, self.background.rect)
-			self.screen.blit(self.player1.image, self.player1.rect)
-			self.screen.blit(self.player2.image, self.player2.rect)
+			self.screen.blit(self.player.image, self.player.rect)
+			self.screen.blit(self.opponent.image, self.opponent.rect)
 			self.screen.blit(self.score1, (275, 30))
 			self.screen.blit(self.score2, (340, 30))
 			self.screen.blit(self.ball.image, self.ball.rect)
 
-			if self.player1.points == 5:
-				self.winner = self.ourfont.render("Player 1 Wins!", False, (255, 255, 255))
+			# Check for and Handle Winner
+			if self.player.points == 1:
+				self.winner = self.ourfont.render("You Win!", False, (255, 255, 255))
 				self.screen.fill(self.black)
-				self.screen.blit(self.winner, (150, 150))
+				self.screen.blit(self.winner, (220, 150))
 				pygame.display.update()
 				time.sleep(5)
 				break
-			elif self.player2.points == 5:
-				self.winner = self.ourfont.render("Player 2 Wins!", False, (255, 255, 255))
+			elif self.opponent.points == 1:
+				self.winner = self.ourfont.render("Opponent Wins!", False, (255, 255, 255))
 				self.screen.fill(self.black)
 				self.screen.blit(self.winner, (150, 150))
 				pygame.display.update()
@@ -75,13 +82,13 @@ class Background(pygame.sprite.Sprite):
 
 
 class Player(pygame.sprite.Sprite):
-	def __init__(self, gs, x, y):
+	def __init__(self, gs):
 		self.GS = gs
 		self.image = pygame.Surface((20, 100))
 		self.image.fill((255, 255, 255))
 		self.rect = self.image.get_rect()
-		self.rect.centerx = x
-		self.rect.centery = y
+		self.rect.centerx = 25
+		self.rect.centery = 240
 		self.points = 0
 
 	def move(self):
@@ -106,6 +113,23 @@ class Player(pygame.sprite.Sprite):
 		pass
 
 
+class Opponent(pygame.sprite.Sprite):
+	def __init__(self, gs):
+		self.GS = gs
+		self.image = pygame.Surface((20, 100))
+		self.image.fill((255, 255, 255))
+		self.rect = self.image.get_rect()
+		self.rect.centerx = 615
+		self.rect.centery = 240
+		self.points = 0
+
+	def move(self, y):
+		self.rect.centery -= y
+
+	def tick(self, y):
+		pass
+
+
 class Ball(pygame.sprite.Sprite):
 	def __init__(self, gs):
 		self.GS = gs
@@ -122,17 +146,17 @@ class Ball(pygame.sprite.Sprite):
 			self.ystep *= self.direction
 
 	def move(self):
-		if self.GS.player1.rect.colliderect(self.rect) or self.GS.player2.rect.colliderect(self.rect):
+		if self.GS.player.rect.colliderect(self.rect) or self.GS.opponent.rect.colliderect(self.rect):
 			#print("collision detected")
 			self.xstep *= -1
 			#self.ystep *= -1
 		elif self.rect.centerx < 0:
 			# give point to player 2
-			self.GS.player2.points += 1
+			self.GS.opponent.points += 1
 			self.miss()
 		elif self.rect.centerx > 640:
 			# give point to player 1
-			self.GS.player1.points += 1
+			self.GS.player.points += 1
 			self.miss()
 		elif self.rect.centery < 20 or self.rect.centery > 460:
 			self.ystep *= -1
