@@ -56,8 +56,9 @@ class Background(pygame.sprite.Sprite):
 
 
 class Player(pygame.sprite.Sprite):
-	def __init__(self, gs):
+	def __init__(self, gs, x, y):
 		self.GS = gs
+		self.rectangle = pygame.draw.rect(self.GS.screen, (255,255,255), (x, y, 30, 100), width = 0)
 		#self.image = pygame.image.load("deathstar.png")
 		#self.original_image = pygame.image.load("deathstar.png")
 		#self.rect = self.image.get_rect()
