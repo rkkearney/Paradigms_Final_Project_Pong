@@ -19,6 +19,7 @@ class ClientConnFactory(ClientFactory):
         self.conn = GameSpace(addr)
         return self.conn
 
+
 class GameSpace(Protocol):
     def __init__(self, addr):
         self.addr = addr
@@ -43,14 +44,16 @@ class GameSpace(Protocol):
         if not self.queue.empty():
             data = self.queue.get()
             self.opponent.rect.centery = data['centery']
-            self.ball.xstep = (-1) * data['xstep']
-            self.ball.ystep = data['ystep']
+            self.ball.rect.centerx = data['x']
+            self.ball.rect.centery = data['y']
+            self.player.points = data['opponent']
+            self.opponent.points = data['player']
 
         self.ball.tick()
         
         # Print Score
-        self.score1 = self.ourfont.render(str(self.player.points), False, (255, 255, 255))
-        self.score2 = self.ourfont.render(str(self.opponent.points), False, (255, 255, 255))
+        self.score1 = self.ourfont.render(str(self.opponent.points), False, (255, 255, 255))
+        self.score2 = self.ourfont.render(str(self.player.points), False, (255, 255, 255))
         
         # Handle Moving 
         for event in pygame.event.get():
@@ -74,28 +77,25 @@ class GameSpace(Protocol):
             self.screen.fill(self.black)
             self.screen.blit(self.winner, (220, 150))
             pygame.display.update()
-            time.sleep(3)
-            sys.exit()
+            time.sleep(2)
+            self.looping.stop()
         elif self.opponent.points == 2:
             self.winner = self.ourfont.render("Opponent Wins!", False, (255, 255, 255))
             self.screen.fill(self.black)
             self.screen.blit(self.winner, (150, 150))
             pygame.display.update()
-            time.sleep(3)
-            sys.exit()
+            time.sleep(2)
+            self.looping.stop()
 
         pygame.display.update()
 
     def connectionMade(self):
         print "connection 2 made"
         # run the game til events end it
-        #self.main()
-        looping = LoopingCall(self.main) #makes all the ticks?
-        looping.start(1/60)
+        self.looping = LoopingCall(self.main)
+        self.looping.start(1/60)
 
     def dataReceived(self, data):
-        #add data to some function in gamspace
-        #function called addingData
         data = pickle.loads(data)
         self.queue.put(data)
         pass
@@ -127,7 +127,7 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.Surface((20, 100))
         self.image.fill((255, 255, 255))
         self.rect = self.image.get_rect()
-        self.rect.centerx = 25
+        self.rect.centerx = 615
         self.rect.centery = 240
         self.points = 0
 
@@ -159,14 +159,11 @@ class Opponent(pygame.sprite.Sprite):
         self.image = pygame.Surface((20, 100))
         self.image.fill((255, 255, 255))
         self.rect = self.image.get_rect()
-        self.rect.centerx = 615
+        self.rect.centerx = 25
         self.rect.centery = 240
         self.points = 0
 
-    def move(self, y):
-        self.rect.centery -= y
-
-    def tick(self, y):
+    def tick(self):
         pass
 
 
@@ -181,33 +178,7 @@ class Ball(pygame.sprite.Sprite):
         self.xstep = 0
         self.ystep = 0
 
-
-    def move(self):
-        if self.rect.centerx < 25:
-            # give point to player 2
-            self.GS.opponent.points += 1
-            self.miss()
-        elif self.rect.centerx > 615:
-            # give point to player 1
-            self.GS.player.points += 1
-            self.miss()
-
-        self.rect.centerx += self.xstep
-        self.rect.centery += self.ystep
-
-        print str(self.rect.centerx) + "\t" + str(self.rect.centery)
-
-    def miss(self):
-        time.sleep(1)
-        self.rect.centerx = 320
-        self.rect.centery = 240
-        self.xstep = randint(10,15)
-        self.ystep = randint(5,15)
-        self.direction = randint(-1,1)
-
-
     def tick(self):
-        self.move()
         pass
 
 

@@ -18,6 +18,7 @@ class HostConnFactory(Factory):
         self.conn = GameSpace(addr)
         return self.conn
 
+
 class GameSpace(Protocol):
     def __init__(self, addr):
         self.addr = addr
@@ -67,15 +68,15 @@ class GameSpace(Protocol):
             self.screen.fill(self.black)
             self.screen.blit(self.winner, (220, 150))
             pygame.display.update()
-            time.sleep(3)
-            sys.exit()
+            time.sleep(2)
+            self.looping.stop()
         elif self.opponent.points == 2:
             self.winner = self.ourfont.render("Opponent Wins!", False, (255, 255, 255))
             self.screen.fill(self.black)
             self.screen.blit(self.winner, (150, 150))
             pygame.display.update()
-            time.sleep(3)
-            sys.exit()
+            time.sleep(2)
+            self.looping.stop()
 
         pygame.display.update()
 
@@ -84,8 +85,8 @@ class GameSpace(Protocol):
         print "connection made"
         # run the game til events end it
         self.sendData()
-        looping = LoopingCall(self.main) #makes all the ticks?
-        looping.start(1/60)
+        self.looping = LoopingCall(self.main)
+        self.looping.start(1/60)
 
     def dataReceived(self, data):
         data = pickle.loads(data)
@@ -95,13 +96,16 @@ class GameSpace(Protocol):
     def sendData(self):
         data = {}
         data['centery'] = self.player.rect.centery
-        data['xstep'] = self.ball.xstep
-        data['ystep'] = self.ball.ystep
+        data['x'] = self.ball.rect.centerx
+        data['y'] = self.ball.rect.centery
+        data['player'] = self.player.points
+        data['opponent'] = self.opponent.points
         data = pickle.dumps(data)
         self.transport.write(data)
 
     def connectionLost(self, args):
         print "connection lost"
+
 
 class Background(pygame.sprite.Sprite):
     def __init__(self, gs):
@@ -186,10 +190,12 @@ class Ball(pygame.sprite.Sprite):
         elif self.rect.centerx < 25:
             # give point to player 2
             self.GS.opponent.points += 1
+            self.direction = -1
             self.miss()
         elif self.rect.centerx > 615:
             # give point to player 1
             self.GS.player.points += 1
+            self.direction = 1
             self.miss()
         elif self.rect.centery < 20 or self.rect.centery > 460:
             self.ystep *= -1
@@ -205,7 +211,7 @@ class Ball(pygame.sprite.Sprite):
         self.rect.centery = 240
         self.xstep = randint(10,15)
         self.ystep = randint(5,15)
-        self.direction = randint(-1,1)
+        #self.direction = randint(-1,1)
         if self.direction < 0:
             self.xstep *= self.direction
             self.ystep *= self.direction
