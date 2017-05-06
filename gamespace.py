@@ -22,51 +22,53 @@ class GameSpace:
 		
 		self.ourfont = pygame.font.SysFont('Comic Sans MS', 70)
 
-		self.clock = pygame.time.Clock()
+		#self.clock = pygame.time.Clock()
 
 	def main(self):
-		while 1:
-			self.ball.move()
-			
-			# Print Score
-			self.score1 = self.ourfont.render(str(self.player.points), False, (255, 255, 255))
-			self.score2 = self.ourfont.render(str(self.opponent.points), False, (255, 255, 255))
-			
-			# Handle Moving 
-			for event in pygame.event.get():
-				if event.type == pygame.QUIT:
-					sys.exit()
-				elif event.type == pygame.KEYDOWN:
-					self.player.tick()
+		#while 1:
+		self.ball.move()
+		
+		# Print Score
+		self.score1 = self.ourfont.render(str(self.player.points), False, (255, 255, 255))
+		self.score2 = self.ourfont.render(str(self.opponent.points), False, (255, 255, 255))
+		
+		# Handle Moving 
+		for event in pygame.event.get():
+			if event.type == pygame.QUIT:
+				sys.exit()
+			elif event.type == pygame.KEYDOWN:
+				self.player.tick()
 
-			#self.opponent.rect.centery -= y
-			
-			# Blit to Screen
-			self.screen.blit(self.background.image, self.background.rect)
-			self.screen.blit(self.player.image, self.player.rect)
-			self.screen.blit(self.opponent.image, self.opponent.rect)
-			self.screen.blit(self.score1, (275, 30))
-			self.screen.blit(self.score2, (340, 30))
-			self.screen.blit(self.ball.image, self.ball.rect)
+		#self.opponent.rect.centery -= y
+		#self.ball.xstep = xstep
+		#self.ball.ystep = ystep
+		
+		# Blit to Screen
+		self.screen.blit(self.background.image, self.background.rect)
+		self.screen.blit(self.player.image, self.player.rect)
+		self.screen.blit(self.opponent.image, self.opponent.rect)
+		self.screen.blit(self.score1, (275, 30))
+		self.screen.blit(self.score2, (340, 30))
+		self.screen.blit(self.ball.image, self.ball.rect)
 
-			# Check for and Handle Winner
-			if self.player.points == 1:
-				self.winner = self.ourfont.render("You Win!", False, (255, 255, 255))
-				self.screen.fill(self.black)
-				self.screen.blit(self.winner, (220, 150))
-				pygame.display.update()
-				time.sleep(5)
-				break
-			elif self.opponent.points == 1:
-				self.winner = self.ourfont.render("Opponent Wins!", False, (255, 255, 255))
-				self.screen.fill(self.black)
-				self.screen.blit(self.winner, (150, 150))
-				pygame.display.update()
-				time.sleep(5)
-				break
-
+		# Check for and Handle Winner
+		if self.player.points == 5:
+			self.winner = self.ourfont.render("You Win!", False, (255, 255, 255))
+			self.screen.fill(self.black)
+			self.screen.blit(self.winner, (220, 150))
 			pygame.display.update()
-			self.clock.tick(60)
+			time.sleep(3)
+			break
+		elif self.opponent.points == 5:
+			self.winner = self.ourfont.render("Opponent Wins!", False, (255, 255, 255))
+			self.screen.fill(self.black)
+			self.screen.blit(self.winner, (150, 150))
+			pygame.display.update()
+			time.sleep(3)
+			break
+
+		pygame.display.update()
+			#self.clock.tick(60)
 
 
 

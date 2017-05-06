@@ -23,19 +23,17 @@ class HostConnection(Protocol):
     def connectionMade(self):
         print "connection made"
         # run the game til events end it
-        self.gamespace.main()
-        looping = LoopingCall(self.gamespace.tick()) #makes all the ticks?
+        looping = LoopingCall(self.gamespace.main) #makes all the ticks?
         looping.start(1/60)
 
     def dataReceived(self, data):
-        #add data to some function in gamspace
-        #send it to the addingData function to integrate to board
+        self.gamespace.dataReceived(data)
         pass
 
     def sendData(self, data):
         self.transport.write(data)
 
-    def connectionLost(self):
+    def connectionLost(self, args):
         print "connection lost"
 
 # other side (Client?)
@@ -56,19 +54,19 @@ class ClientConnection(Protocol):
     def connectionMade(self):
         print "connection 2 made"
         # run the game til events end it
-        self.gamespace.main()
-        looping = LoopingCall(self.gamespace.tick()) #makes all the ticks?
+        looping = LoopingCall(self.gamespace.main) #makes all the ticks?
         looping.start(1/60)
 
     def dataReceived(self, data):
         #add data to some function in gamspace
         #function called addingData
+        self.gamespace.dataReceived(data)
         pass
 
     def sendData(self, data):
         self.transport.write(data)
 
-    def connectionLost(self):
+    def connectionLost(self, args):
         print "connection 2 lost"
 
 
