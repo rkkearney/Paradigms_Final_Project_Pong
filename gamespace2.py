@@ -9,7 +9,6 @@ from Queue import Queue
 from twisted.internet.protocol import Factory
 from twisted.internet.protocol import ClientFactory
 from twisted.internet.protocol import Protocol
-#from twisted.internet.defer import DeferredQueue
 from twisted.internet.task import LoopingCall
 from twisted.internet import reactor
 
@@ -22,6 +21,7 @@ class ClientConnFactory(ClientFactory):
 
 class GameSpace(Protocol):
     def __init__(self, addr):
+        ''' gamespace initializer '''
         self.addr = addr
         self.queue = Queue()
 
@@ -45,6 +45,7 @@ class GameSpace(Protocol):
         self.ourfont = pygame.font.SysFont('Comic Sans MS', 70)
 
     def main(self):
+        ''' main game loop '''
         if not self.queue.empty():
             data = self.queue.get()
             self.opponent.rect.centery = data['centery']
@@ -86,7 +87,6 @@ class GameSpace(Protocol):
             else:
                 self.displayWinner += 1
             time.sleep(1)
-            #self.looping.stop()
             self.gameover()
         elif self.opponent.points == 5:
             self.winner = self.ourfont.render("Opponent Wins!", False, (255, 255, 255))
@@ -98,29 +98,31 @@ class GameSpace(Protocol):
             else:
                 self.displayWinner += 1
             time.sleep(1)
-            #self.looping.stop()
             self.gameover()
 
         pygame.display.update()
 
     def connectionMade(self):
+        ''' run as soon as connection is made '''
         print "connection 2 made"
-        # run the game til events end it
-        self.looping = LoopingCall(self.main)
+        self.looping = LoopingCall(self.main) # continuously runs the game mainloop
         self.looping.start(1/60)
 
     def dataReceived(self, data):
+        ''' place data received into the queue to ennsure proper order '''
         data = pickle.loads(data)
         self.queue.put(data)
         pass
 
     def sendData(self):
+        ''' sends the necessary data to the server/host '''
         data = {}
         data['centery'] = self.player.rect.centery
         data = pickle.dumps(data)
         self.transport.write(data)
 
     def connectionLost(self, args):
+        ''' connection to server/host lost '''
         self.over = self.ourfont.render("Connection Lost", False, self.black)
         self.screen.fill((255,255,255))
         self.screen.blit(self.over, (130, 150))
@@ -129,6 +131,7 @@ class GameSpace(Protocol):
         os._exit(1)
 
     def gameover(self):
+        ''' end of game / winner declared '''
         self.over = self.ourfont.render("Gameover!", False, (255, 255, 255))
         self.screen.fill(self.black)
         self.screen.blit(self.over, (180, 150))
@@ -137,6 +140,7 @@ class GameSpace(Protocol):
 
 class Background(pygame.sprite.Sprite):
     def __init__(self, gs):
+        ''' loads the appropriate background image '''
         self.GS = gs
         self.image = pygame.image.load("background.png")
         self.original_image = pygame.image.load("background.png")
@@ -157,6 +161,7 @@ class Player(pygame.sprite.Sprite):
         self.points = 0
 
     def move(self):
+        ''' determines the direction in which to move the player '''
         key = pygame.key.get_pressed()
         step = 10
 
@@ -168,6 +173,7 @@ class Player(pygame.sprite.Sprite):
             self.check()
 
     def check(self):
+        ''' makes sure the player image stays within the game window '''
         if self.rect.centery > 430:
             self.rect.centery = 430
         elif self.rect.centery < 50:
@@ -180,6 +186,7 @@ class Player(pygame.sprite.Sprite):
 
 class Opponent(pygame.sprite.Sprite):
     def __init__(self, gs):
+        ''' places the opponent in appropriate location '''
         self.GS = gs
         self.image = pygame.Surface((20, 100))
         self.image.fill((255, 255, 255))
@@ -194,6 +201,7 @@ class Opponent(pygame.sprite.Sprite):
 
 class Ball(pygame.sprite.Sprite):
     def __init__(self, gs):
+        ''' places the ball '''
         self.GS = gs
         self.image = pygame.Surface((20, 20))
         self.image.fill((255, 255, 255))
@@ -208,6 +216,7 @@ class Ball(pygame.sprite.Sprite):
 
 
 if __name__ == '__main__':
+    ''' connection '''
     connFact = ClientConnFactory()
     reactor.connectTCP("localhost", 40127, connFact)
     reactor.run()
