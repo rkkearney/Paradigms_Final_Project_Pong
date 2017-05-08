@@ -27,6 +27,8 @@ class GameSpace(Protocol):
         pygame.font.init()
         pygame.key.set_repeat(1,50)
         
+        self.displayWinner = 0
+
         self.over = None        
 
         self.size = self.width, self.height = 640, 480 
@@ -70,7 +72,12 @@ class GameSpace(Protocol):
             self.screen.fill(self.black)
             self.screen.blit(self.winner, (220, 150))
             pygame.display.update()
-            time.sleep(2)
+            if self.displayWinner == 0:
+                self.sendData()
+            elif self.displayWinner == 3:
+                os._exit(1)
+            self.displayWinner += 1 
+            time.sleep(1)
             #self.looping.stop()
             self.gameover()
         elif self.opponent.points == 5:
@@ -78,7 +85,12 @@ class GameSpace(Protocol):
             self.screen.fill(self.black)
             self.screen.blit(self.winner, (150, 150))
             pygame.display.update()
-            time.sleep(2)
+            if self.displayWinner == 0:
+                self.sendData()
+            elif self.displayWinner == 3:
+                os._exit(1)
+            self.displayWinner += 1
+            time.sleep(1)
             #self.looping.stop()
             self.gameover()
 
@@ -108,7 +120,12 @@ class GameSpace(Protocol):
         self.transport.write(data)
 
     def connectionLost(self, args):
-        print "connection lost"
+        self.over = self.ourfont.render("Connection Lost", False, self.black)
+        self.screen.fill((255,255,255))
+        self.screen.blit(self.over, (130, 150))
+        pygame.display.update()
+        time.sleep(2)
+        os._exit(1)
 
     def gameover(self):
         self.over = self.ourfont.render("Gameover!", False, (255, 255, 255))
@@ -186,8 +203,10 @@ class Ball(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.centerx = 320
         self.rect.centery = 240
-        self.xstep = randint(1,2)
-        self.ystep = randint(1,2)
+        #self.xstep = randint(1,2)
+        #self.ystep = randint(1,2)
+        self.xstep = randint(5,15)
+        self.ystep = randint(5,10)
         self.direction = randint(-1,1)
         if self.direction < 0:
             self.xstep *= self.direction
@@ -220,8 +239,10 @@ class Ball(pygame.sprite.Sprite):
         time.sleep(1)
         self.rect.centerx = 320
         self.rect.centery = 240
-        self.xstep = randint(1,2)
-        self.ystep = randint(1,2)
+        #self.xstep = randint(1,2)
+        #self.ystep = randint(1,2)
+        self.xstep = randint(5,15)
+        self.ystep = randint(5,10)
         self.direction = randint(-1,1)
         if self.direction < 0:
             self.xstep *= self.direction

@@ -25,6 +25,8 @@ class GameSpace(Protocol):
         self.addr = addr
         self.queue = Queue()
 
+        self.displayWinner = 0
+
         self.over = None
 
         pygame.init()
@@ -79,6 +81,10 @@ class GameSpace(Protocol):
             self.screen.fill(self.black)
             self.screen.blit(self.winner, (220, 150))
             pygame.display.update()
+            if self.displayWinner == 3:
+                os._exit(1)
+            else:
+                self.displayWinner += 1
             time.sleep(1)
             #self.looping.stop()
             self.gameover()
@@ -87,6 +93,10 @@ class GameSpace(Protocol):
             self.screen.fill(self.black)
             self.screen.blit(self.winner, (150, 150))
             pygame.display.update()
+            if self.displayWinner == 3:
+                os._exit(1)
+            else:
+                self.displayWinner += 1
             time.sleep(1)
             #self.looping.stop()
             self.gameover()
@@ -111,7 +121,12 @@ class GameSpace(Protocol):
         self.transport.write(data)
 
     def connectionLost(self, args):
-        print "connection 2 lost"
+        self.over = self.ourfont.render("Connection Lost", False, self.black)
+        self.screen.fill((255,255,255))
+        self.screen.blit(self.over, (130, 150))
+        pygame.display.update()
+        time.sleep(2)
+        os._exit(1)
 
     def gameover(self):
         self.over = self.ourfont.render("Gameover!", False, (255, 255, 255))
