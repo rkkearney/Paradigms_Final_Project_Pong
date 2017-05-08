@@ -186,8 +186,8 @@ class Ball(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.centerx = 320
         self.rect.centery = 240
-        self.xstep = randint(5,8)
-        self.ystep = randint(2,7)
+        self.xstep = randint(1,2)
+        self.ystep = randint(1,2)
         self.direction = randint(-1,1)
         if self.direction < 0:
             self.xstep *= self.direction
@@ -220,9 +220,9 @@ class Ball(pygame.sprite.Sprite):
         time.sleep(1)
         self.rect.centerx = 320
         self.rect.centery = 240
-        self.xstep = randint(10,15)
-        self.ystep = randint(5,15)
-        #self.direction = randint(-1,1)
+        self.xstep = randint(1,2)
+        self.ystep = randint(1,2)
+        self.direction = randint(-1,1)
         if self.direction < 0:
             self.xstep *= self.direction
             self.ystep *= self.direction
