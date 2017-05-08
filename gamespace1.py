@@ -26,6 +26,8 @@ class GameSpace(Protocol):
         pygame.init()
         pygame.font.init()
         pygame.key.set_repeat(1,50)
+        
+        self.over = None        
 
         self.size = self.width, self.height = 640, 480 
         self.black = 0, 0, 0
@@ -48,7 +50,7 @@ class GameSpace(Protocol):
         # Handle Moving 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                sys.exit()
+                os._exit(1)
             elif event.type == pygame.KEYDOWN:
                 self.player.tick()
         
@@ -63,20 +65,22 @@ class GameSpace(Protocol):
         self.screen.blit(self.ball.image, self.ball.rect)
 
         # Check for and Handle Winner
-        if self.player.points == 2:
+        if self.player.points == 5:
             self.winner = self.ourfont.render("You Win!", False, (255, 255, 255))
             self.screen.fill(self.black)
             self.screen.blit(self.winner, (220, 150))
             pygame.display.update()
             time.sleep(2)
-            self.looping.stop()
-        elif self.opponent.points == 2:
+            #self.looping.stop()
+            self.gameover()
+        elif self.opponent.points == 5:
             self.winner = self.ourfont.render("Opponent Wins!", False, (255, 255, 255))
             self.screen.fill(self.black)
             self.screen.blit(self.winner, (150, 150))
             pygame.display.update()
             time.sleep(2)
-            self.looping.stop()
+            #self.looping.stop()
+            self.gameover()
 
         pygame.display.update()
 
@@ -105,6 +109,13 @@ class GameSpace(Protocol):
 
     def connectionLost(self, args):
         print "connection lost"
+
+    def gameover(self):
+        self.over = self.ourfont.render("Gameover!", False, (255, 255, 255))
+        self.screen.fill(self.black)
+        self.screen.blit(self.over, (180, 150))
+        pygame.display.update()
+        time.sleep(3)
 
 
 class Background(pygame.sprite.Sprite):
@@ -175,8 +186,8 @@ class Ball(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.centerx = 320
         self.rect.centery = 240
-        self.xstep = randint(10,15)
-        self.ystep = randint(5,15)
+        self.xstep = randint(5,8)
+        self.ystep = randint(2,7)
         self.direction = randint(-1,1)
         if self.direction < 0:
             self.xstep *= self.direction
@@ -203,7 +214,7 @@ class Ball(pygame.sprite.Sprite):
         self.rect.centerx += self.xstep
         self.rect.centery += self.ystep
 
-        print str(self.rect.centerx) + "\t" + str(self.rect.centery)
+        #print str(self.rect.centerx) + "\t" + str(self.rect.centery)
 
     def miss(self):
         time.sleep(1)

@@ -25,6 +25,8 @@ class GameSpace(Protocol):
         self.addr = addr
         self.queue = Queue()
 
+        self.over = None
+
         pygame.init()
         pygame.font.init()
         pygame.key.set_repeat(1,50)
@@ -58,7 +60,7 @@ class GameSpace(Protocol):
         # Handle Moving 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                sys.exit()
+                os._exit(1)
             elif event.type == pygame.KEYDOWN:
                 self.player.tick()
                 self.sendData()
@@ -72,20 +74,22 @@ class GameSpace(Protocol):
         self.screen.blit(self.ball.image, self.ball.rect)
 
         # Check for and Handle Winner
-        if self.player.points == 2:
+        if self.player.points == 5:
             self.winner = self.ourfont.render("You Win!", False, (255, 255, 255))
             self.screen.fill(self.black)
             self.screen.blit(self.winner, (220, 150))
             pygame.display.update()
             time.sleep(2)
-            self.looping.stop()
-        elif self.opponent.points == 2:
+            #self.looping.stop()
+            self.gameover()
+        elif self.opponent.points == 5:
             self.winner = self.ourfont.render("Opponent Wins!", False, (255, 255, 255))
             self.screen.fill(self.black)
             self.screen.blit(self.winner, (150, 150))
             pygame.display.update()
             time.sleep(2)
-            self.looping.stop()
+            #self.looping.stop()
+            self.gameover()
 
         pygame.display.update()
 
@@ -109,6 +113,12 @@ class GameSpace(Protocol):
     def connectionLost(self, args):
         print "connection 2 lost"
 
+    def gameover(self):
+        self.over = self.ourfont.render("Gameover!", False, (255, 255, 255))
+        self.screen.fill(self.black)
+        self.screen.blit(self.over, (180, 150))
+        pygame.display.update()
+        time.sleep(3)
 
 class Background(pygame.sprite.Sprite):
     def __init__(self, gs):
@@ -184,5 +194,5 @@ class Ball(pygame.sprite.Sprite):
 
 if __name__ == '__main__':
     connFact = ClientConnFactory()
-    reactor.connectTCP("ash.campus.nd.edu", 40127, connFact)
+    reactor.connectTCP("localhost", 40127, connFact)
     reactor.run()
