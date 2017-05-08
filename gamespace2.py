@@ -79,7 +79,7 @@ class GameSpace(Protocol):
             self.screen.fill(self.black)
             self.screen.blit(self.winner, (220, 150))
             pygame.display.update()
-            time.sleep(2)
+            time.sleep(1)
             #self.looping.stop()
             self.gameover()
         elif self.opponent.points == 5:
@@ -87,7 +87,7 @@ class GameSpace(Protocol):
             self.screen.fill(self.black)
             self.screen.blit(self.winner, (150, 150))
             pygame.display.update()
-            time.sleep(2)
+            time.sleep(1)
             #self.looping.stop()
             self.gameover()
 
