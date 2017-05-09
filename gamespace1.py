@@ -13,7 +13,7 @@ from twisted.internet import reactor
 
 class HostConnFactory(Factory):
     def buildProtocol(self, addr):
-    '''Connection Instantiation'''
+        '''Connection Instantiation'''
         self.addr = addr
         self.conn = GameSpace(addr)
         return self.conn
@@ -21,7 +21,7 @@ class HostConnFactory(Factory):
 
 class GameSpace(Protocol):
     def __init__(self, addr):
-    '''Initializes pygame and other key variables and objects'''
+        '''Initializes pygame and other key variables and objects'''
         self.addr = addr
 
         pygame.init()
@@ -44,7 +44,7 @@ class GameSpace(Protocol):
         self.ourfont = pygame.font.SysFont('Comic Sans MS', 70)
 
     def main(self):
-    '''the game loop, called in the looping call in connectionMade'''
+        '''the game loop, called in the looping call in connectionMade'''
         self.ball.tick()
         
         # Print Score
@@ -100,8 +100,8 @@ class GameSpace(Protocol):
 
 
     def connectionMade(self):
-	'''called when a connection is made, sends initial data
-		over connection and starts looping call'''
+        '''called when a connection is made, sends initial data
+                over connection and starts looping call'''
         print "connection made"
         # run the game til events end it
         self.sendData()
@@ -109,15 +109,15 @@ class GameSpace(Protocol):
         self.looping.start(1/60)
 
     def dataReceived(self, data):
-	'''called when data is sent over connection, and
-		unpacks that data into corresponding variables'''
+        '''called when data is sent over connection, and
+                unpacks that data into corresponding variables'''
         data = pickle.loads(data)
         self.opponent.rect.centery = data['centery']
         pass
 
     def sendData(self):
-    '''called in game loop to send data over connection
-    	to opponent in pickle format'''
+        '''called in game loop to send data over connection
+        to opponent in pickle format'''
         data = {}
         data['centery'] = self.player.rect.centery
         data['x'] = self.ball.rect.centerx
@@ -128,7 +128,7 @@ class GameSpace(Protocol):
         self.transport.write(data)
 
     def connectionLost(self, args):
-    '''called if connection is lost, displays message and exits'''
+        '''called if connection is lost, displays message and exits'''
         self.over = self.ourfont.render("Connection Lost", False, self.black)
         self.screen.fill((255,255,255))
         self.screen.blit(self.over, (130, 150))
@@ -137,7 +137,7 @@ class GameSpace(Protocol):
         os._exit(1)
 
     def gameover(self):
-    '''called when game is over and displays game over messge'''
+        '''called when game is over and displays game over messge'''
         self.over = self.ourfont.render("Gameover!", False, (255, 255, 255))
         self.screen.fill(self.black)
         self.screen.blit(self.over, (180, 150))
@@ -167,7 +167,7 @@ class Player(pygame.sprite.Sprite):
         self.points = 0
 
     def move(self):
-    '''called if key is pressed and moves plaer'''
+        '''called if key is pressed and moves plaer'''
         key = pygame.key.get_pressed()
         step = 10
 
@@ -179,14 +179,14 @@ class Player(pygame.sprite.Sprite):
             self.check()
 
     def check(self):
-    '''called in move to make sure player stays in the window'''
+        '''called in move to make sure player stays in the window'''
         if self.rect.centery > 430:
             self.rect.centery = 430
         elif self.rect.centery < 50:
             self.rect.centery = 50
 
     def tick(self):
-    '''called in main game loop'''
+        '''called in main game loop'''
         self.move()
         pass
 
@@ -225,9 +225,9 @@ class Ball(pygame.sprite.Sprite):
             self.ystep *= self.direction
 
     def move(self):
-    '''called in tick to move the ball,
-    	checks for collision detection and readjusts ball path,
-    	checks that ball stays in bounds and rebounds or increments points accordingly'''
+        '''called in tick to move the ball,
+            checks for collision detection and readjusts ball path,
+            checks that ball stays in bounds and rebounds or increments points accordingly'''
         if self.GS.player.rect.colliderect(self.rect) or self.GS.opponent.rect.colliderect(self.rect):
             self.xstep *= -1
         elif self.rect.centerx < 25:
@@ -247,7 +247,7 @@ class Ball(pygame.sprite.Sprite):
         self.rect.centery += self.ystep
 
     def miss(self):
-    '''called if the ball goes over the x bounds'''
+        '''called if the ball goes over the x bounds'''
         time.sleep(1)
         self.rect.centerx = 320
         self.rect.centery = 240
@@ -262,7 +262,7 @@ class Ball(pygame.sprite.Sprite):
             self.ystep *= self.direction
 
     def tick(self):
-	'''called in main game loop'''
+        '''called in main game loop'''
         self.move()
         pass
 
