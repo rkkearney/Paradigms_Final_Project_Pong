@@ -10,7 +10,9 @@ Each player controls a white block vertically across the screen. They must preve
 
 ## How To Play
 Each player controls their white block/paddle using the UP and DOWN arrows on their keyboard. 
+
 Player 1: `./gamespace1.py`
+
 Player 2: `./gamespace2.py` 
 
 ## Localhost vs Ash Server
